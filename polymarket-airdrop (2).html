@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymarket Airdrop Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #2D5BFF;
+    --blue-dim: rgba(45,91,255,0.18);
+    --blue-glow: rgba(45,91,255,0.35);
+    --purple: #7C6FCD;
+    --green: #00C896;
+    --amber: #F5A623;
+    --red: #E25C4B;
+    --gray: #8A8A9A;
+    --bg: #080B14;
+    --card: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --border-bright: rgba(255,255,255,0.15);
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.55);
+    --text-faint: rgba(255,255,255,0.3);
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; width: 100%; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ───────────────────────────────────────────
+     SCREEN 1 — LANDING
+  ─────────────────────────────────────────── */
+  #s1 {
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Animated background orbs */
+  #s1::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 700px 500px at 20% 10%, rgba(45,91,255,0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 600px 500px at 85% 80%, rgba(124,111,205,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 400px 400px at 60% 50%, rgba(0,200,150,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid overlay */
+  #s1::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .s1-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0;
+  }
+
+  /* Logo */
+  .pm-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--blue);
+    padding: 10px 18px;
+    border-radius: 12px;
+    margin-bottom: 36px;
+    box-shadow: 0 0 40px var(--blue-glow), inset 0 1px 0 rgba(255,255,255,0.12);
+    animation: floatLogo 5s ease-in-out infinite;
+  }
+  @keyframes floatLogo {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+  .pm-logo svg { width: 26px; height: 26px; display: block; }
+  .pm-logo-text { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.02em; }
+
+  /* Live badge */
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 99px;
+    margin-bottom: 24px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  .s1-title {
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    background: linear-gradient(160deg, #ffffff 30%, #7EB3FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .s1-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 36px;
+    max-width: 380px;
+  }
+
+  /* Input */
+  .input-wrap {
+    width: 100%;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .addr-input {
+    width: 100%;
+    height: 54px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-bright);
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Inter', monospace;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 0 18px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .addr-input::placeholder { color: var(--text-faint); font-family: 'Inter', sans-serif; }
+  .addr-input:focus {
+    border-color: var(--blue);
+    background: rgba(45,91,255,0.07);
+    box-shadow: 0 0 0 4px rgba(45,91,255,0.18);
+  }
+
+  .check-btn {
+    width: 100%;
+    height: 54px;
+    background: var(--blue);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 24px var(--blue-glow), inset 0 1px 0 rgba(255,255,255,0.12);
+    text-transform: uppercase;
+  }
+  .check-btn:hover:not(:disabled) {
+    background: #3D6BFF;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(45,91,255,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .check-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+  .err-msg {
+    display: none;
+    font-size: 13px;
+    color: #F5C4B3;
+    background: rgba(226,92,75,0.12);
+    border: 1px solid rgba(226,92,75,0.3);
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-top: 10px;
+    text-align: left;
+  }
+  .err-msg.show { display: block; }
+
+  /* Footer brand */
+  .s1-footer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: var(--text-faint);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .s1-footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .s1-footer a:hover { opacity: 0.8; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ───────────────────────────────────────────
+     SCREEN 2 — RESULTS
+  ─────────────────────────────────────────── */
+  #s2 {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #s2::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 600px at 90% 5%, rgba(124,111,205,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 600px 600px at 5% 95%, rgba(45,91,255,0.2) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .s2-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Top bar */
+  .s2-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pm-logo-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue);
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+  .pm-logo-mini svg { width: 16px; height: 16px; }
+  .pm-logo-mini-text { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+  .s2-addr { font-size: 12px; color: var(--text-faint); font-family: 'Inter', monospace; }
+
+  /* Hero allocation */
+  .s2-hero {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .s2-hero::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+  }
+  .tS .s2-hero::before { background: linear-gradient(90deg, #7C6FCD, #4B44A8); }
+  .tA .s2-hero::before { background: linear-gradient(90deg, #00C896, #00956E); }
+  .tB .s2-hero::before { background: linear-gradient(90deg, #2D5BFF, #1B40CC); }
+  .tC .s2-hero::before { background: linear-gradient(90deg, #F5A623, #C47E10); }
+  .tD .s2-hero::before { background: linear-gradient(90deg, #E25C4B, #B03C2D); }
+  .tE .s2-hero::before { background: linear-gradient(90deg, #8A8A9A, #5A5A6A); }
+
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 99px;
+    margin-bottom: 20px;
+  }
+  .tS .tier-badge { background: rgba(124,111,205,0.2); color: #BDB3FF; border: 1px solid rgba(124,111,205,0.4); }
+  .tA .tier-badge { background: rgba(0,200,150,0.15); color: #6DFFCE; border: 1px solid rgba(0,200,150,0.3); }
+  .tB .tier-badge { background: rgba(45,91,255,0.15); color: #89ABFF; border: 1px solid rgba(45,91,255,0.35); }
+  .tC .tier-badge { background: rgba(245,166,35,0.15); color: #FFCF6B; border: 1px solid rgba(245,166,35,0.35); }
+  .tD .tier-badge { background: rgba(226,92,75,0.15); color: #FFAB9D; border: 1px solid rgba(226,92,75,0.35); }
+  .tE .tier-badge { background: rgba(138,138,154,0.15); color: #BBBBC8; border: 1px solid rgba(138,138,154,0.3); }
+
+  .tier-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .tS .tier-dot { background: #7C6FCD; box-shadow: 0 0 8px #7C6FCD; }
+  .tA .tier-dot { background: #00C896; box-shadow: 0 0 8px #00C896; }
+  .tB .tier-dot { background: #2D5BFF; box-shadow: 0 0 8px #2D5BFF; }
+  .tC .tier-dot { background: #F5A623; box-shadow: 0 0 8px #F5A623; }
+  .tD .tier-dot { background: #E25C4B; box-shadow: 0 0 8px #E25C4B; }
+  .tE .tier-dot { background: #8A8A9A; }
+
+  .poly-amount {
+    font-size: clamp(44px, 10vw, 72px);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    background: linear-gradient(170deg, #ffffff 0%, #9DC9FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .poly-unit { font-size: 22px; font-weight: 500; margin-left: 4px; -webkit-text-fill-color: #7EB3FF; }
+  .poly-usd { font-size: 18px; font-weight: 500; color: var(--green); }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  @media (min-width: 480px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: var(--accent, var(--blue));
+    opacity: 0.5;
+  }
+  .stat-card:nth-child(1) { --accent: #2D5BFF; }
+  .stat-card:nth-child(2) { --accent: #7C6FCD; }
+  .stat-card:nth-child(3) { --accent: #00C896; }
+  .stat-card:nth-child(4) { --accent: #F5A623; }
+  .stat-label { font-size: 10px; font-weight: 500; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .stat-value { font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+
+  /* Params */
+  .params-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .param-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 7px;
+  }
+  .param-group select {
+    width: 100%;
+    height: 40px;
+    background: var(--card);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 0 12px;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.4)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  .param-group select:focus { border-color: var(--blue); }
+  .param-group select option { background: #111827; color: #fff; }
+
+  /* Tiers table */
+  .tiers-section { }
+  .tiers-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+  .tiers-list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .tier-row {
+    display: grid;
+    grid-template-columns: 8px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .tier-row:last-child { border-bottom: none; }
+  .tier-row.active {
+    background: rgba(45,91,255,0.1);
+    border-left: 2px solid var(--blue);
+    padding-left: 14px;
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .tdot-S { background: #7C6FCD; box-shadow: 0 0 8px rgba(124,111,205,0.8); }
+  .tdot-A { background: #00C896; box-shadow: 0 0 8px rgba(0,200,150,0.8); }
+  .tdot-B { background: #2D5BFF; box-shadow: 0 0 8px rgba(45,91,255,0.8); }
+  .tdot-C { background: #F5A623; box-shadow: 0 0 8px rgba(245,166,35,0.8); }
+  .tdot-D { background: #E25C4B; box-shadow: 0 0 8px rgba(226,92,75,0.8); }
+  .tdot-E { background: #8A8A9A; }
+  .tier-info { }
+  .tier-name-text { font-size: 13px; font-weight: 500; color: var(--text); }
+  .tier-range { font-size: 11px; color: var(--text-faint); margin-top: 1px; font-family: 'Inter', monospace; }
+  .tier-pool-share { font-size: 12px; color: var(--text-muted); }
+  .tier-amount { font-size: 13px; font-weight: 500; color: #7EB3FF; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Actions */
+  .s2-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 4px;
+  }
+  .btn-back {
+    height: 48px;
+    padding: 0 20px;
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-back:hover { background: var(--card); color: #fff; }
+  .btn-share {
+    flex: 1;
+    height: 48px;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-share:hover { background: #111; border-color: rgba(255,255,255,0.3); transform: translateY(-1px); }
+  .btn-share svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* ───────────────────────────────────────────
+     SCREEN 3 — SHARE
+  ─────────────────────────────────────────── */
+  #s3 {
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  #s3::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 500px at 50% 30%, rgba(45,91,255,0.25) 0%, transparent 55%),
+      radial-gradient(ellipse 500px 400px at 50% 100%, rgba(124,111,205,0.2) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .s3-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .s3-card {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(45,91,255,0.15), rgba(124,111,205,0.15));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 36px 28px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .s3-card::before {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(45,91,255,0.3), transparent 70%);
+    pointer-events: none;
+  }
+  .s3-card::after {
+    content: "";
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,111,205,0.25), transparent 70%);
+    pointer-events: none;
+  }
+  .s3-emoji {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 14px;
+    animation: bounce 2.5s ease-in-out infinite;
+    position: relative; z-index: 1;
+  }
+  @keyframes bounce { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px); } }
+  .s3-headline {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 6px;
+    position: relative; z-index: 1;
+  }
+  .s3-amount-text {
+    background: linear-gradient(135deg, #00C896, #6DFFCE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .s3-tagline {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    position: relative; z-index: 1;
+  }
+
+  .tweet-preview {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    text-align: left;
+  }
+  .tweet-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tweet-label svg { width: 11px; height: 11px; opacity: 0.5; }
+  .tweet-text {
+    font-size: 13px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.85);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .s3-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .btn-post {
+    width: 100%;
+    height: 52px;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-post:hover { background: #111; border-color: rgba(255,255,255,0.35); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+  .btn-post svg { width: 16px; height: 16px; }
+  .btn-copy {
+    width: 100%;
+    height: 46px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-copy:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .btn-copy.copied { background: rgba(0,200,150,0.1); border-color: rgba(0,200,150,0.35); color: #6DFFCE; }
+  .btn-restart {
+    font-size: 13px;
+    color: var(--text-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    padding: 8px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .btn-restart:hover { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- =================== SCREEN 1: LANDING =================== -->
+<div class="screen active" id="s1">
+  <div class="s1-content">
+
+    <div class="pm-logo">
+      <svg viewBox="0 0 32 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0 L0 26 L20 13 Z" fill="white"/>
+        <path d="M13 13 L13 26 L25 19.5 Z" fill="white"/>
+      </svg>
+      <span class="pm-logo-text">Polymarket</span>
+    </div>
+
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      Live · data-api.polymarket.com
+    </div>
+
+    <h1 class="s1-title">Airdrop Simulator</h1>
+    <p class="s1-sub">Discover how much $POLY you could receive based on your onchain trading activity.</p>
+
+    <div class="input-wrap">
+      <input
+        class="addr-input"
+        id="addrInput"
+        type="text"
+        placeholder="Enter your 0x... wallet address"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button class="check-btn" id="checkBtn" onclick="doCheck()">
+      <span id="btnLabel">Check $POLY Allocation</span>
+    </button>
+
+    <div class="err-msg" id="errMsg"></div>
+
+    <div class="s1-footer">
+      <span>Built by <a href="https://x.com/traderibo123" target="_blank">@traderibo123</a></span>
+      <span>For entertainment purposes only</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- =================== SCREEN 2: RESULTS =================== -->
+<div class="screen" id="s2">
+  <div class="s2-inner">
+
+    <div class="s2-topbar">
+      <div class="pm-logo-mini">
+        <svg viewBox="0 0 32 26" fill="none">
+          <path d="M0 0 L0 26 L20 13 Z" fill="white"/>
+          <path d="M13 13 L13 26 L25 19.5 Z" fill="white"/>
+        </svg>
+        <span class="pm-logo-mini-text">Polymarket</span>
+      </div>
+      <span class="s2-addr" id="s2Addr">—</span>
+    </div>
+
+    <!-- Hero card -->
+    <div class="s2-hero" id="s2Hero">
+      <div class="tier-badge" id="tierBadge">
+        <span class="tier-dot"></span>
+        <span id="tierName">—</span>
+      </div>
+      <div class="poly-amount" id="polyAmount">0<span class="poly-unit">$POLY</span></div>
+      <div class="poly-usd" id="polyUsd">≈ $0</div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Markets</div>
+        <div class="stat-value" id="statMkt">0</div>
+        <div class="stat-sub">traded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Volume</div>
+        <div class="stat-value" id="statVol">$0</div>
+        <div class="stat-sub">all-time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Holdings</div>
+        <div class="stat-value" id="statVal">$0</div>
+        <div class="stat-sub">current value</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">LP Farmed</div>
+        <div class="stat-value" id="statLp">$0</div>
+        <div class="stat-sub">liquidity rewards</div>
+      </div>
+    </div>
+
+    <!-- FDV & Distribution controls -->
+    <div class="params-row">
+      <div class="param-group">
+        <label>Hypothetical FDV</label>
+        <select id="fdvSel" onchange="recalcDisplay()">
+          <option value="1e9">$1 Billion</option>
+          <option value="2e9">$2 Billion</option>
+          <option value="5e9" selected>$5 Billion</option>
+          <option value="1e10">$10 Billion</option>
+          <option value="2e10">$20 Billion</option>
+          <option value="5e10">$50 Billion</option>
+          <option value="1e11">$100 Billion</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <label>Airdrop Allocation</label>
+        <select id="distSel" onchange="recalcDisplay()">
+          <option value="0.05">5% of supply</option>
+          <option value="0.10" selected>10% of supply</option>
+          <option value="0.15">15% of supply</option>
+          <option value="0.20">20% of supply</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tiers list -->
+    <div class="tiers-section">
+      <div class="tiers-label">Tier Distribution</div>
+      <div class="tiers-list" id="tiersList"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="s2-actions">
+      <button class="btn-back" onclick="goTo('s1')">← Back</button>
+      <button class="btn-share" onclick="goTo('s3')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Share on X
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- =================== SCREEN 3: SHARE =================== -->
+<div class="screen" id="s3">
+  <div class="s3-inner">
+
+    <div class="pm-logo-mini">
+      <svg viewBox="0 0 32 26" fill="none">
+        <path d="M0 0 L0 26 L20 13 Z" fill="white"/>
+        <path d="M13 13 L13 26 L25 19.5 Z" fill="white"/>
+      </svg>
+      <span class="pm-logo-mini-text">Polymarket</span>
+    </div>
+
+    <div class="s3-card">
+      <span class="s3-emoji">🎉</span>
+      <div class="s3-headline">You're getting <span class="s3-amount-text" id="shareAmount">0 POLY</span></div>
+      <div class="s3-tagline">Share your result and let your followers check theirs.</div>
+    </div>
+
+    <div class="tweet-preview">
+      <div class="tweet-label">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Tweet preview
+      </div>
+      <div class="tweet-text" id="tweetText">—</div>
+    </div>
+
+    <div class="s3-actions">
+      <a class="btn-post" id="tweetBtn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Post on X
+      </a>
+      <button class="btn-copy" id="copyBtn" onclick="copyTweet()">Copy text</button>
+      <button class="btn-restart" onclick="restart()">← Check another wallet</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────
+const SUPPLY = 1_000_000_000;
+
+// Total airdrop pool breakdown:
+// 88% → trading activity tiers
+// 12% → LP farming bonus (distributed proportionally to LP score)
+const LP_POOL_SHARE = 0.12;
+const TRADE_POOL_SHARE = 0.88;
+
+const TIERS = [
+  { id:'S', name:'Tier S · Whale',  short:'Whale',   min:1,      max:1000,   share:0.22, minScore:4000, mult:5   },
+  { id:'A', name:'Tier A · Pro',    short:'Pro',     min:1001,   max:10000,  share:0.24, minScore:1000, mult:3   },
+  { id:'B', name:'Tier B · Active', short:'Active',  min:10001,  max:50000,  share:0.22, minScore:250,  mult:2   },
+  { id:'C', name:'Tier C · Regular',short:'Regular', min:50001,  max:150000, share:0.18, minScore:60,   mult:1.5 },
+  { id:'D', name:'Tier D · Casual', short:'Casual',  min:150001, max:350000, share:0.10, minScore:10,   mult:1   },
+  { id:'E', name:'Tier E · Starter',short:'Starter', min:350001, max:500000, share:0.04, minScore:0,    mult:0.5 },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────
+let currentData = null;
+
+// ─── UTILS ────────────────────────────────────────────────────────
+function fmt(n) {
+  if (!n || isNaN(n) || n <= 0) return '0';
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return Math.round(n).toLocaleString();
+}
+function fmtFull(n) {
+  if (!n || isNaN(n)) return '0';
+  return Math.round(n).toLocaleString();
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  currentData = null;
+  document.getElementById('addrInput').value = '';
+  document.getElementById('errMsg').classList.remove('show');
+  goTo('s1');
+}
+
+// ─── SCORING ──────────────────────────────────────────────────────
+function computeScore(d) {
+  const mktPts = Math.min(3000, Math.sqrt(d.mkt) * 42);
+  const volPts = d.vol > 0 ? Math.min(2500, Math.log10(d.vol) * 380) : 0;
+  const valPts = d.val > 0 ? Math.min(500,  Math.log10(d.val) * 85)  : 0;
+  // LP farming: significant bonus — log scale, max 2000 pts
+  const lpPts  = d.lp  > 0 ? Math.min(2000, Math.log10(d.lp)  * 320) : 0;
+  return Math.round(mktPts + volPts + valPts + lpPts);
+}
+
+function getTier(score) {
+  for (const t of TIERS) if (score >= t.minScore) return t;
+  return TIERS[TIERS.length - 1];
+}
+
+function getParams() {
+  const fdv  = parseFloat(document.getElementById('fdvSel').value);
+  const dist = parseFloat(document.getElementById('distSel').value);
+  return { fdv, dist, pool: SUPPLY * dist, price: fdv / SUPPLY };
+}
+
+function calcAllocation(d) {
+  const { pool, price } = getParams();
+  const score  = computeScore(d);
+  const tier   = getTier(score);
+  const total  = Math.round(score * tier.mult);
+
+  // Trading allocation (88% of pool)
+  const tradePool = pool * TRADE_POOL_SHARE;
+  const tp     = tradePool * tier.share;
+  const cnt    = tier.max - tier.min + 1;
+  const ratio  = Math.min(3, score / 1500);
+  const tradeTokens = Math.round((tp / cnt) * ratio);
+
+  // LP farming allocation (12% of pool) — proportional to LP score
+  const lpPool = pool * LP_POOL_SHARE;
+  const lpScore = d.lp > 0 ? Math.min(2000, Math.log10(d.lp) * 320) : 0;
+  // Estimate LP share: lpScore out of assumed avg 500 pts × 50000 LP farmers
+  const lpTokens = lpScore > 0 ? Math.round(lpPool * (lpScore / (500 * 50000))) : 0;
+
+  const tokens = tradeTokens + lpTokens;
+  const usd    = tokens * price;
+  return { tier, score: total, tokens, tradeTokens, lpTokens, usd };
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────
+function renderResult(d) {
+  const r = calcAllocation(d);
+  const { pool, price } = getParams();
+
+  // Hero
+  const s2 = document.getElementById('s2');
+  s2.className = 'screen t' + r.tier.id;
+  document.getElementById('tierName').textContent = r.tier.name;
+  document.getElementById('polyAmount').innerHTML = fmtFull(r.tokens) + '<span class="poly-unit">$POLY</span>';
+  document.getElementById('polyUsd').textContent  = '≈ $' + fmt(r.usd) + ' USD'
+    + (r.lpTokens > 0 ? `  ·  🌊 +${fmt(r.lpTokens)} LP bonus` : '');
+  document.getElementById('s2Addr').textContent   = d.addr.slice(0, 6) + '...' + d.addr.slice(-4);
+
+  // Stats
+  document.getElementById('statMkt').textContent = fmt(d.mkt);
+  document.getElementById('statVol').textContent = '$' + fmt(d.vol);
+  document.getElementById('statVal').textContent = '$' + fmt(d.val);
+  document.getElementById('statLp').textContent  = d.lp > 0 ? '$' + fmt(d.lp) : '—';
+
+  // Tier list
+  let html = '';
+  for (const t of TIERS) {
+    const tp = pool * t.share;
+    const cnt = t.max - t.min + 1;
+    const pp = tp / cnt;
+    const isActive = t.id === r.tier.id;
+    html += `<div class="tier-row${isActive ? ' active' : ''}">
+      <span class="tdot tdot-${t.id}"></span>
+      <div class="tier-info">
+        <div class="tier-name-text">${t.short}</div>
+        <div class="tier-range">#${fmt(t.min)} – #${fmt(t.max)}</div>
+      </div>
+      <span class="tier-pool-share">${(t.share * 100).toFixed(0)}% pool</span>
+      <span class="tier-amount">${fmt(pp)} POLY<br><span style="font-size:11px;color:rgba(255,255,255,0.4)">≈$${fmt(pp * price)}</span></span>
+    </div>`;
+  }
+  document.getElementById('tiersList').innerHTML = html;
+
+  // Share screen
+  const shareAmt = fmtFull(r.tokens);
+  document.getElementById('shareAmount').textContent = shareAmt + ' $POLY';
+  const lpLine = d.lp > 0 ? `\n💧 LP farmed: $${fmt(d.lp)}` : '';
+  const tweet =
+    `🎯 I just checked my $POLY airdrop allocation!\n\n` +
+    `${r.tier.name.toUpperCase()}\n` +
+    `${shareAmt} POLY tokens (≈$${fmt(r.usd)})\n` +
+    `📊 ${fmt(d.mkt)} markets · $${fmt(d.vol)} volume${lpLine}\n\n` +
+    `Check yours 👇\nBuilt by @traderibo123`;
+  document.getElementById('tweetText').textContent = tweet;
+  document.getElementById('tweetBtn').href =
+    'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet);
+}
+
+function recalcDisplay() {
+  if (currentData) renderResult(currentData);
+}
+
+// ─── COPY ─────────────────────────────────────────────────────────
+function copyTweet() {
+  const txt = document.getElementById('tweetText').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.textContent = '✓ Copied!';
+    b.classList.add('copied');
+    setTimeout(() => { b.textContent = 'Copy text'; b.classList.remove('copied'); }, 2200);
+  }).catch(() => {});
+}
+
+// ─── FETCH — race 3 proxies, take first valid JSON ─────────────────
+function raceProxies(targetUrl, timeoutMs = 11000) {
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+  ];
+  return new Promise(resolve => {
+    let done = false, pending = proxies.length;
+    const finish = (v) => { if (!done) { done = true; resolve(v); } };
+    proxies.forEach(url => {
+      fetch(url)
+        .then(r => r.ok ? r.text() : null)
+        .then(txt => {
+          pending--;
+          if (done) return;
+          if (txt) {
+            try { finish(JSON.parse(txt)); return; } catch(_) {}
+          }
+          if (pending === 0) finish(null);
+        })
+        .catch(() => { pending--; if (!done && pending === 0) finish(null); });
+    });
+    setTimeout(() => finish(null), timeoutMs);
+  });
+}
+
+// ─── MAIN CHECK ───────────────────────────────────────────────────
+async function doCheck() {
+  const addr = document.getElementById('addrInput').value.trim().toLowerCase();
+  const errEl = document.getElementById('errMsg');
+
+  if (!addr.startsWith('0x') || addr.length !== 42) {
+    errEl.textContent = 'Please enter a valid Ethereum address (0x... 42 characters)';
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  const btn = document.getElementById('checkBtn');
+  btn.disabled = true;
+  document.getElementById('btnLabel').innerHTML = '<span class="spinner"></span> Loading…';
+
+  const BASE = 'https://data-api.polymarket.com';
+
+  // Fire all 3 endpoints in parallel
+  const [traded, value, activity] = await Promise.all([
+    raceProxies(`${BASE}/traded?user=${addr}`,   9000),
+    raceProxies(`${BASE}/value?user=${addr}`,    9000),
+    raceProxies(`${BASE}/activity?user=${addr}&limit=500`, 12000),
+  ]);
+
+  btn.disabled = false;
+  document.getElementById('btnLabel').textContent = 'Check $POLY Allocation';
+
+  // ── /traded → market count ──────────────────────────────────────
+  let mkt = 0;
+  if (traded && typeof traded.traded === 'number') mkt = traded.traded;
+
+  // ── /value → holdings ──────────────────────────────────────────
+  // Response: [{"user":"0x...","value":123}]  (single-item array)
+  let val = 0;
+  if (Array.isArray(value) && value.length > 0) {
+    // Official response: array with one object per user
+    val = parseFloat(value[0].value || 0);
+  } else if (value && typeof value.value === 'number') {
+    val = value.value;
+  }
+
+  // ── /activity → volume (TRADE) + LP (REWARD/SPLIT) ─────────────
+  let vol = 0;
+  let lp  = 0;
+  if (Array.isArray(activity)) {
+    activity.forEach(a => {
+      if (!a) return;
+      const usdc = parseFloat(a.usdcSize || 0) ||
+                   (parseFloat(a.price || 0) * parseFloat(a.size || 0));
+      if (a.type === 'TRADE' || a.side === 'BUY' || a.side === 'SELL') {
+        if (!isNaN(usdc) && usdc > 0) vol += usdc;
+      }
+      // LP farming: REWARD = liquidity reward payout, SPLIT = adding liquidity
+      if (a.type === 'REWARD' || a.type === 'SPLIT') {
+        const lpUsdc = parseFloat(a.usdcSize || a.size || 0);
+        if (!isNaN(lpUsdc) && lpUsdc > 0) lp += lpUsdc;
+      }
+    });
+  }
+
+  if (mkt === 0 && val === 0 && vol === 0) {
+    errEl.textContent = 'No activity found. Make sure you use the wallet address from your Polymarket profile (not your funding wallet).';
+    errEl.classList.add('show');
+    return;
+  }
+
+  currentData = { mkt, val, vol, lp, addr };
+  renderResult(currentData);
+  goTo('s2');
+  document.getElementById('s2').classList.add('active');
+}
+
+// Enter key support
+document.getElementById('addrInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doCheck();
+});
+</script>
+</body>
+</html>
